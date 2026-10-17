@@ -5,7 +5,8 @@ import config
 
 def init_db():
     """Инициализация базы данных"""
-    conn = sqlite3.connect(config.DATABASE_URL)
+    # CORREGIDO: config.config.DATABASE_URL
+    conn = sqlite3.connect(config.config.DATABASE_URL)
     cursor = conn.cursor()
     
     cursor.execute('''
@@ -40,7 +41,6 @@ def init_db():
     # Проверка и создание записи статистики
     cursor.execute("SELECT COUNT(*) FROM stats")
     if cursor.fetchone()[0] == 0:
-        # CORREGIDO: Sangría agregada aquí
         cursor.execute("INSERT INTO stats (total_messages) VALUES (0)")
     
     conn.commit()
@@ -48,7 +48,8 @@ def init_db():
 
 def get_user_stats(user_id: int) -> Dict:
     """Получить статистику пользователя"""
-    conn = sqlite3.connect(config.DATABASE_URL)
+    # CORREGIDO: config.config.DATABASE_URL
+    conn = sqlite3.connect(config.config.DATABASE_URL)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     
@@ -60,8 +61,8 @@ def get_user_stats(user_id: int) -> Dict:
 
 def update_global_stats():
     """Обновить глобальную статистику"""
-    conn = sqlite3.connect(config.DATABASE_URL)
-    # CORREGIDO: Agregado row_factory para que funcione cursor.fetchone()["total"]
+    # CORREGIDO: config.config.DATABASE_URL
+    conn = sqlite3.connect(config.config.DATABASE_URL)
     conn.row_factory = sqlite3.Row 
     cursor = conn.cursor()
     
@@ -74,7 +75,8 @@ def update_global_stats():
 
 def save_message(user_id: int, message: str, response: str):
     """Сохранить сообщение и ответ"""
-    conn = sqlite3.connect(config.DATABASE_URL)
+    # CORREGIDO: config.config.DATABASE_URL
+    conn = sqlite3.connect(config.config.DATABASE_URL)
     cursor = conn.cursor()
     
     cursor.execute("INSERT INTO messages (user_id, message, response) VALUES (?, ?, ?)", 
@@ -84,7 +86,8 @@ def save_message(user_id: int, message: str, response: str):
 
 def get_user_info(user_id: int) -> Dict:
     """Получить информацию о пользователе"""
-    conn = sqlite3.connect(config.DATABASE_URL)
+    # CORREGIDO: config.config.DATABASE_URL
+    conn = sqlite3.connect(config.config.DATABASE_URL)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     
@@ -92,7 +95,6 @@ def get_user_info(user_id: int) -> Dict:
     user = cursor.fetchone()
     
     if not user:
-        # CORREGIDO: Sangría agregada al bloque del if
         cursor.execute("INSERT INTO users (id, username, first_name, last_name) VALUES (?, ?, ?, ?)",
         (user_id, "Unknown", "Unknown", ""))
         conn.commit()
