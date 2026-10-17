@@ -13,7 +13,7 @@ class Config:
  WORMGPT_API_KEY = os.getenv("WORMGPT_API_KEY")
  
  # Database
- DATABASE_URL = "sqlite:///wormgpt_bot.db"
+ DATABASE_URL = "wormgpt_bot.db"
  
  # Bot Settings
  BOT_NAME = "WormGPT"
