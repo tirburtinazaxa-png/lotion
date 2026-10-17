@@ -10,7 +10,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters, CallbackQueryHandler, WebhookHandler
+from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters, CallbackQueryHandler
 import config
 import db
 
@@ -53,7 +53,6 @@ async def call_wormgpt_api(prompt: str, context: str = "") -> str:
     }
     
     try:
-        # CORREGIDO: Indentación correcta y "async with"
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
                 f"{config.config.WORMGPT_API_URL}/chat/completions", 
@@ -88,7 +87,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     user_text = update.message.text
     
-    conn = sqlite3.connect(config.config.DATABASE_URL)
+    conn = sqlite3.connect("wormgpt_bot.db")
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     
@@ -136,7 +135,7 @@ async def read_root():
 
 @app.get("/api/stats")
 async def get_stats():
-    conn = sqlite3.connect(config.config.DATABASE_URL)
+    conn = sqlite3.connect("wormgpt_bot.db")
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     
@@ -162,7 +161,6 @@ async def telegram_webhook(request: Request):
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     application.add_handler(CallbackQueryHandler(panel_callback))
     
-    # CORREGIDO: Inicializar la aplicación antes de procesar la actualización
     await application.initialize()
     update = Update.de_json(data, application.bot)
     await application.process_update(update)
@@ -171,12 +169,11 @@ async def telegram_webhook(request: Request):
 
 @app.on_event("startup")
 async def startup_event():
-    logger.info("Inicializando base de datos...")
+    logger.info("Инициализация базы данных...")
     db.init_db()
-    logger.info("Base de datos inicializada")
+    logger.info("База данных инициализирована")
 
 # --- EJECUCIÓN (Modo Railway) ---
 if __name__ == "__main__":
     import uvicorn
-    # Railway inyectará el PORT automáticamente
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
